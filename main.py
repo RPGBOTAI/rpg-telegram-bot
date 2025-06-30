@@ -3,15 +3,11 @@ import json
 import asyncio
 import logging
 from typing import Dict, Any
-from dotenv import load_dotenv
 
 import requests
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 from openai import OpenAI
-
-# Завантажуємо змінні середовища
-load_dotenv()
 
 # Налаштування логування
 logging.basicConfig(
@@ -20,10 +16,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Конфігурація
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-GOOGLE_SCRIPT_URL = os.getenv('GOOGLE_SCRIPT_URL')
+# Конфігурація - читаємо змінні середовища напряму
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+GOOGLE_SCRIPT_URL = os.environ.get('GOOGLE_SCRIPT_URL')
+
+# Перевіряємо що всі змінні налаштовані
+if not TELEGRAM_BOT_TOKEN:
+    logger.error("TELEGRAM_BOT_TOKEN не налаштований!")
+    exit(1)
+
+if not OPENAI_API_KEY:
+    logger.error("OPENAI_API_KEY не налаштований!")
+    exit(1)
+    
+if not GOOGLE_SCRIPT_URL:
+    logger.error("GOOGLE_SCRIPT_URL не налаштований!")
+    exit(1)
 
 # Ініціалізація OpenAI клієнта
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
